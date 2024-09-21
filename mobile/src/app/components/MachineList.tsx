@@ -17,9 +17,9 @@ type Machine = {
   id: string;
   name: string;
   type: string;
-  model: string; // Adicionei o modelo
-  manufactureDate: string; // Adicionei a data de fabricação
-  serialNumber: string; // Adicionei o número de série
+  model: string;
+  manufactureDate: string;
+  serialNumber: string;
   location: string;
   status: string;
 };
@@ -32,7 +32,8 @@ const initialMachines: Machine[] = [
 
 const MachineListScreen: React.FC<Props> = ({ navigation }) => {
   const [machines, setMachines] = useState<Machine[]>(initialMachines);
-  const [showForm, setShowForm] = useState(false); // Estado para controlar o formulário
+  const [showForm, setShowForm] = useState(false);
+  const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
 
   const handleDelete = (id: string) => {
     Alert.alert('Excluir Máquina', 'Tem certeza que deseja excluir esta máquina?', [
@@ -44,35 +45,47 @@ const MachineListScreen: React.FC<Props> = ({ navigation }) => {
     ]);
   };
 
-  const handleEdit = (id: string) => {
-    Alert.alert('Editar Máquina', `Editar Máquina com ID: ${id}`);
+  const handleEdit = (machine: Machine) => {
+    setEditingMachine(machine);
+    setShowForm(true);
+  };
+
+  const handleFormSubmit = (newMachine: Machine) => {
+    if (editingMachine) {
+      setMachines((prev) => 
+        prev.map((machine) => (machine.id === editingMachine.id ? newMachine : machine))
+      );
+    } else {
+      setMachines((prev) => [...prev, { ...newMachine, id: String(prev.length + 1) }]);
+    }
+    setShowForm(false);
+    setEditingMachine(null);
   };
 
   return (
     <View className="flex-1 p-5">
       <Text className="text-2xl font-bold mb-5">Lista de Máquinas</Text>
 
-      {/* Botão para alternar exibição do formulário */}
       <Button
         title={showForm ? "Fechar Formulário" : "Adicionar Nova Máquina"}
-        onPress={() => setShowForm(!showForm)}
+        onPress={() => {
+          setShowForm(!showForm);
+          setEditingMachine(null);
+        }}
       />
 
-      {/* Exibe o formulário se o botão for clicado */}
       <MachineForm 
         visible={showForm} 
         onClose={() => setShowForm(false)} 
-        onCreate={(newMachine) => {
-          setMachines((prev) => [...prev, { ...newMachine, id: String(prev.length + 1) }]);
-          setShowForm(false); // Fecha o modal após criar a máquina
-        }} 
+        onCreate={handleFormSubmit} 
+        initialData={editingMachine} 
       />
 
       <FlatList
         data={machines}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View className="mb-4 p-4 bg-gray-200 rounded">
+          <View className="mb-4 p-4 bg-gray-200 rounded" key={item.id}>
             <TouchableOpacity onPress={() => navigation.navigate('MachineScreen', { machineId: item.id })}>
               <Text className="text-lg font-semibold">{item.name}</Text>
               <Text>Tipo: {item.type}</Text>
@@ -84,7 +97,7 @@ const MachineListScreen: React.FC<Props> = ({ navigation }) => {
             </TouchableOpacity>
 
             <View className="flex-row justify-between mt-4">
-              <Button title="Editar" onPress={() => handleEdit(item.id)} />
+              <Button title="Editar" onPress={() => handleEdit(item)} />
               <Button title="Excluir" onPress={() => handleDelete(item.id)} color="red" />
             </View>
           </View>
