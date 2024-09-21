@@ -16,8 +16,6 @@ type Props = {
 const MachineListScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View className="flex-1 p-5">
-      <Text className="text-2xl font-bold mb-5">Lista de Máquinas</Text>
-
       {/* Componente MachineList gerenciando as máquinas e o formulário */}
       <MachineList navigation={navigation} />
     </View>
