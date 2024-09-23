@@ -5,6 +5,8 @@ export type RootStackParamList = {
   HomeScreen: undefined;
   MachineScreen: undefined;
   MaintenanceScreen: undefined;
+  TeamScreen: undefined; // Verifique se está aqui
+  CreateMaintenanceScreen: undefined;
   Details: { name: string; email: string };
 };
 
@@ -13,3 +15,4 @@ export interface MaintenanceScreenProps {
   title: string;
   id: number;
 }
+

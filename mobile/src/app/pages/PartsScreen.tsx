@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, FlatList, TextInput, Button, Alert } from "react-native";
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigations/types';
 
 interface Part {
   id: string;

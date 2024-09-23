@@ -6,14 +6,16 @@ import MachineScreen from './pages/MachineScreen';
 import MaintenanceScreen from './pages/MaintenanceScreen';
 import CreateMaintenanceRequestScreen from './pages/CreateMaintenanceScreen';
 import PartsScreen from './pages/PartsScreen';
+import TeamScreen from './pages/TeamScreen'; // Importação da TeamScreen
 
 type RootStackParamList = {
   Home: undefined;
   MachineScreen: undefined;
   MaintenanceScreen: undefined;
-  Details: {name: string; email: string};
+  Details: { name: string; email: string };
   CreateMaintenanceScreen: undefined;
   PartsScreen: undefined;
+  TeamScreen: undefined; // Adicionando a TeamScreen
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -28,7 +30,7 @@ export default function Index() {
         <Stack.Screen name="MaintenanceScreen" component={MaintenanceScreen} />
         <Stack.Screen name="CreateMaintenanceScreen" component={CreateMaintenanceRequestScreen} />
         <Stack.Screen name="PartsScreen" component={PartsScreen} />
-      </Stack.Navigator>
+        <Stack.Screen name="TeamScreen" component={TeamScreen} /></Stack.Navigator>
     </NavigationContainer>
   );
 }

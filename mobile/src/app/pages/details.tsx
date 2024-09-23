@@ -57,6 +57,15 @@ const Dashboard: React.FC<Props> = ({ navigation }) => {
           <Icon name="cog" size={50} color="orange" />
           <Text className="mt-2 text-lg">Peças</Text>
         </TouchableOpacity>
+
+        {/* Ícone para Cadastro de Equipe */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate("TeamScreen")}
+          className="items-center"
+        >
+          <Icon name="account-group" size={50} color="teal" />
+          <Text className="mt-2 text-lg">Equipe</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

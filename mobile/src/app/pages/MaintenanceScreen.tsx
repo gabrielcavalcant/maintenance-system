@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, Button, Alert } from 'react-native';
+import { TeamMember } from '../navigations/types'; // Certifique-se de ter o tipo definido
 
 type Maintenance = {
   id: string;
   date: string;
   status: string;
+  responsible: string; // Adicionando responsável
 };
 
-const initialMaintenanceHistory: Maintenance[] = [
-  { id: '1', date: '2023-08-15', status: 'Concluída' },
-  { id: '2', date: '2023-09-01', status: 'Pendente' },
-  { id: '3', date: '2023-09-10', status: 'Em andamento' },
-];
+const initialMaintenanceHistory: Maintenance[] = [];
 
-const MaintenanceHistoryScreen: React.FC = () => {
+const MaintenanceHistoryScreen: React.FC<{ teamMembers: TeamMember[] }> = ({ teamMembers }) => {
   const [maintenanceHistory, setMaintenanceHistory] = useState<Maintenance[]>(initialMaintenanceHistory);
 
   const handleDelete = (id: string) => {
@@ -40,7 +38,7 @@ const MaintenanceHistoryScreen: React.FC = () => {
           <View className="mb-4 p-4 bg-gray-200 rounded">
             <Text className="text-lg">Data: {item.date}</Text>
             <Text>Status: {item.status}</Text>
-
+            <Text>Responsável: {item.responsible}</Text> {/* Exibindo responsável */}
             <View className="flex-row justify-between mt-4">
               <Button title="Editar" onPress={() => handleEdit(item.id)} />
               <Button title="Excluir" onPress={() => handleDelete(item.id)} color="red" />
