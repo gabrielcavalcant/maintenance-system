@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert, Button, Modal, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert, TextInput, Modal, ScrollView } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigations/types';
-import MachineForm from '../components/MachineForm'; 
 
 type MachineListNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -25,17 +24,29 @@ type Machine = {
 };
 
 const initialMachines: Machine[] = [
-  { id: '1', name: 'Máquina A', type: 'Industrial', model: 'Modelo A', manufactureDate: '2021-01-01', serialNumber: 'SN001', location: 'Setor 1', status: 'OK' },
-  { id: '2', name: 'Máquina B', type: 'Agrícola', model: 'Modelo B', manufactureDate: '2020-06-15', serialNumber: 'SN002', location: 'Setor 2', status: 'Em Manutenção' },
-  { id: '3', name: 'Máquina C', type: 'Manufatura', model: 'Modelo C', manufactureDate: '2022-03-20', serialNumber: 'SN003', location: 'Setor 3', status: 'OK' },
+  { id: '1', name: 'Furadeira Elétrica', type: 'Industrial', model: 'FE-3000', manufactureDate: '2021-01-01', serialNumber: 'SN123456', location: 'Setor de Montagem', status: 'OK' },
+  { id: '2', name: 'Trator Agrícola', type: 'Agrícola', model: 'TA-2020', manufactureDate: '2020-06-15', serialNumber: 'SN789012', location: 'Setor Rural', status: 'Em Manutenção' },
+  { id: '3', name: 'Impressora 3D', type: 'Manufatura', model: '3DP-500', manufactureDate: '2022-03-20', serialNumber: 'SN345678', location: 'Setor de Produção', status: 'OK' },
+  { id: '4', name: 'Cortadora de Papel', type: 'Industrial', model: 'CP-150', manufactureDate: '2019-11-10', serialNumber: 'SN901234', location: 'Setor de Acabamento', status: 'Pendente' },
+  { id: '5', name: 'Escavadeira Hidráulica', type: 'Construção', model: 'EH-900', manufactureDate: '2018-08-22', serialNumber: 'SN567890', location: 'Setor de Obras', status: 'Em Manutenção' },
 ];
 
 const MachineListScreen: React.FC<Props> = ({ navigation }) => {
   const [machines, setMachines] = useState<Machine[]>(initialMachines);
   const [showForm, setShowForm] = useState(false);
   const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
-  const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
+  const [newMachine, setNewMachine] = useState<Machine>({
+    id: '',
+    name: '',
+    type: '',
+    model: '',
+    manufactureDate: '',
+    serialNumber: '',
+    location: '',
+    status: '',
+  });
 
   const handleDelete = (id: string) => {
     Alert.alert('Excluir Máquina', 'Tem certeza que deseja excluir esta máquina?', [
@@ -48,20 +59,40 @@ const MachineListScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleEdit = (machine: Machine) => {
-    setEditingMachine(machine);
+    setEditingMachine({ ...machine });
     setShowForm(true);
   };
 
-  const handleFormSubmit = (newMachine: Machine) => {
+  const handleFormSubmit = () => {
     if (editingMachine) {
-      setMachines((prev) => 
-        prev.map((machine) => (machine.id === editingMachine.id ? newMachine : machine))
+      setMachines((prev) =>
+        prev.map((machine) => (machine.id === editingMachine.id ? editingMachine : machine))
       );
     } else {
-      setMachines((prev) => [...prev, { ...newMachine, id: String(prev.length + 1) }]);
+      const newId = String(machines.length + 1);
+      setMachines((prev) => [...prev, { ...newMachine, id: newId }]);
     }
+
     setShowForm(false);
     setEditingMachine(null);
+    setNewMachine({
+      id: '',
+      name: '',
+      type: '',
+      model: '',
+      manufactureDate: '',
+      serialNumber: '',
+      location: '',
+      status: '',
+    });
+  };
+
+  const handleChangeText = (key: keyof Machine, value: string) => {
+    if (editingMachine) {
+      setEditingMachine({ ...editingMachine, [key]: value });
+    } else {
+      setNewMachine((prev) => ({ ...prev, [key]: value }));
+    }
   };
 
   const handleViewDetails = (machine: Machine) => {
@@ -73,20 +104,81 @@ const MachineListScreen: React.FC<Props> = ({ navigation }) => {
     <View className="flex-1 p-5">
       <Text className="text-2xl font-bold mb-5">Lista de Máquinas</Text>
 
-      <Button
-        title={showForm ? "Fechar Formulário" : "Adicionar Nova Máquina"}
+      <TouchableOpacity
+        className="bg-blue-500 p-3 rounded mb-4"
         onPress={() => {
           setShowForm(!showForm);
           setEditingMachine(null);
         }}
-      />
+      >
+        <Text className="text-white text-center">{showForm ? "Fechar Formulário" : "Adicionar Nova Máquina"}</Text>
+      </TouchableOpacity>
 
-      <MachineForm 
-        visible={showForm} 
-        onClose={() => setShowForm(false)} 
-        onCreate={handleFormSubmit} 
-        initialData={editingMachine} 
-      />
+      {showForm && (
+        <View className="mb-4 p-4 bg-gray-100 rounded">
+          <Text className="text-lg font-bold mb-2">{editingMachine ? 'Editar Máquina' : 'Adicionar Nova Máquina'}</Text>
+
+          <Text className="mb-1">Nome:</Text>
+          <TextInput
+            className="mb-2 p-2 border border-gray-300 rounded"
+            value={editingMachine ? editingMachine.name : newMachine.name}
+            onChangeText={(text) => handleChangeText('name', text)}
+            placeholder="Nome da Máquina"
+          />
+
+          <Text className="mb-1">Tipo:</Text>
+          <TextInput
+            className="mb-2 p-2 border border-gray-300 rounded"
+            value={editingMachine ? editingMachine.type : newMachine.type}
+            onChangeText={(text) => handleChangeText('type', text)}
+            placeholder="Tipo da Máquina"
+          />
+
+          <Text className="mb-1">Modelo:</Text>
+          <TextInput
+            className="mb-2 p-2 border border-gray-300 rounded"
+            value={editingMachine ? editingMachine.model : newMachine.model}
+            onChangeText={(text) => handleChangeText('model', text)}
+            placeholder="Modelo da Máquina"
+          />
+
+          <Text className="mb-1">Data de Fabricação:</Text>
+          <TextInput
+            className="mb-2 p-2 border border-gray-300 rounded"
+            value={editingMachine ? editingMachine.manufactureDate : newMachine.manufactureDate}
+            onChangeText={(text) => handleChangeText('manufactureDate', text)}
+            placeholder="Data de Fabricação (aaaa-mm-dd)"
+          />
+
+          <Text className="mb-1">Número de Série:</Text>
+          <TextInput
+            className="mb-2 p-2 border border-gray-300 rounded"
+            value={editingMachine ? editingMachine.serialNumber : newMachine.serialNumber}
+            onChangeText={(text) => handleChangeText('serialNumber', text)}
+            placeholder="Número de Série"
+          />
+
+          <Text className="mb-1">Localização:</Text>
+          <TextInput
+            className="mb-2 p-2 border border-gray-300 rounded"
+            value={editingMachine ? editingMachine.location : newMachine.location}
+            onChangeText={(text) => handleChangeText('location', text)}
+            placeholder="Localização da Máquina"
+          />
+
+          <Text className="mb-1">Status:</Text>
+          <TextInput
+            className="mb-2 p-2 border border-gray-300 rounded"
+            value={editingMachine ? editingMachine.status : newMachine.status}
+            onChangeText={(text) => handleChangeText('status', text)}
+            placeholder="Status da Máquina"
+          />
+
+          <TouchableOpacity className="bg-green-500 p-3 rounded mt-2" onPress={handleFormSubmit}>
+            <Text className="text-white text-center">Salvar</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <FlatList
         data={machines}
@@ -94,7 +186,7 @@ const MachineListScreen: React.FC<Props> = ({ navigation }) => {
         renderItem={({ item }) => (
           <View className="mb-4 p-4 bg-gray-200 rounded" key={item.id}>
             <TouchableOpacity onPress={() => handleViewDetails(item)}>
-              <Text className="text-lg font-semibold">{item.name}</Text>
+              <Text className="text-lg font-semibold">Nome: {item.name}</Text>
               <Text>Tipo: {item.type}</Text>
               <Text>Modelo: {item.model}</Text>
               <Text>Data de Fabricação: {item.manufactureDate}</Text>
@@ -104,8 +196,12 @@ const MachineListScreen: React.FC<Props> = ({ navigation }) => {
             </TouchableOpacity>
 
             <View className="flex-row justify-between mt-4">
-              <Button title="Editar" onPress={() => handleEdit(item)} />
-              <Button title="Excluir" onPress={() => handleDelete(item.id)} color="red" />
+              <TouchableOpacity className="bg-yellow-500 p-2 rounded" onPress={() => handleEdit(item)}>
+                <Text className="text-white">Editar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="bg-red-500 p-2 rounded" onPress={() => handleDelete(item.id)}>
+                <Text className="text-white">Excluir</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -113,9 +209,9 @@ const MachineListScreen: React.FC<Props> = ({ navigation }) => {
 
       {selectedMachine && (
         <Modal visible={isModalVisible} transparent={true} animationType="slide">
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.title}>{selectedMachine.name}</Text>
+          <View className="flex-1 justify-center items-center bg-[rgba(0, 0, 0, 0.5)]">
+            <View className="bg-white p-5 rounded w-[90%] h-[70%]">
+              <Text className="text-2xl font-bold">{selectedMachine.name}</Text>
               <ScrollView>
                 <Text>Tipo: {selectedMachine.type}</Text>
                 <Text>Modelo: {selectedMachine.model}</Text>
@@ -123,11 +219,12 @@ const MachineListScreen: React.FC<Props> = ({ navigation }) => {
                 <Text>Número de Série: {selectedMachine.serialNumber}</Text>
                 <Text>Localização: {selectedMachine.location}</Text>
                 <Text>Status: {selectedMachine.status}</Text>
-
-                <Text style={styles.subtitle}>Histórico de Manutenção</Text>
+                <Text className="mt-2 font-bold">Histórico de Manutenção</Text>
                 {/* Adicionar histórico de manutenção e imagens se disponíveis */}
               </ScrollView>
-              <Button title="Fechar" onPress={() => setIsModalVisible(false)} />
+              <TouchableOpacity className="bg-blue-500 p-3 rounded mt-2" onPress={() => setIsModalVisible(false)}>
+                <Text className="text-white text-center">Fechar</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
@@ -135,29 +232,5 @@ const MachineListScreen: React.FC<Props> = ({ navigation }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    width: '90%',
-    height: '70%',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  subtitle: {
-    fontSize: 18,
-    marginTop: 10,
-  },
-});
 
 export default MachineListScreen;
