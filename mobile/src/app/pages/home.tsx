@@ -8,11 +8,11 @@ export function HomeScreen({ navigation }: { navigation: any }) {
   return (
     <View className="flex-1 justify-center items-center bg-gray-100 p-6">
       {/* Logotipo ou imagem no topo */}
-      {/* <Image
-        source={require("../images/logo.png")} // Usando require para imagens locais
-        className="w-16 h-16 mb-6"
+      <Image
+        source={require("../../images/logo.png")} // Usando require para imagens locais
+        className="w-20 h-20 mb-10"
         resizeMode="contain"
-      /> */}
+      />
 
       {/* Título de boas-vindas */}
       <Text className="text-3xl font-bold text-gray-800 mb-8">
