@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, Alert } from 'react-native';
+import { View, Text, TextInput, FlatList, Alert, Modal, TouchableOpacity } from 'react-native';
 
 type MaintenanceRequest = {
   id: string;
@@ -18,6 +18,8 @@ const CreateMaintenanceRequestScreen: React.FC = () => {
   const [problemDescription, setProblemDescription] = useState('');
   const [priority, setPriority] = useState('');
   const [responsible, setResponsible] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<MaintenanceRequest | null>(null);
 
   const handleSubmit = () => {
     const newRequest: MaintenanceRequest = {
@@ -42,8 +44,27 @@ const CreateMaintenanceRequestScreen: React.FC = () => {
     ]);
   };
 
-  const handleEdit = (id: string) => {
-    Alert.alert('Editar Solicitação', `Editar Solicitação com ID: ${id}`);
+  const handleEdit = (request: MaintenanceRequest) => {
+    setSelectedRequest(request);
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (selectedRequest) {
+      setRequests((prev) =>
+        prev.map((request) =>
+          request.id === selectedRequest.id ? selectedRequest : request
+        )
+      );
+      setIsEditing(false);
+      setSelectedRequest(null);
+    }
+  };
+
+  const handleChangeText = (key: keyof MaintenanceRequest, value: string) => {
+    if (selectedRequest) {
+      setSelectedRequest({ ...selectedRequest, [key]: value });
+    }
   };
 
   return (
@@ -71,7 +92,9 @@ const CreateMaintenanceRequestScreen: React.FC = () => {
         onChangeText={setResponsible}
       />
 
-      <Button title="Criar Solicitação" onPress={handleSubmit} />
+      <TouchableOpacity className="bg-blue-500 p-3 rounded mb-4" onPress={handleSubmit}>
+        <Text className="text-white text-center font-bold">Criar Solicitação</Text>
+      </TouchableOpacity>
 
       <FlatList
         data={requests}
@@ -83,12 +106,56 @@ const CreateMaintenanceRequestScreen: React.FC = () => {
             <Text>Responsável: {item.responsible}</Text>
 
             <View className="flex-row justify-between mt-4">
-              <Button title="Editar" onPress={() => handleEdit(item.id)} />
-              <Button title="Excluir" onPress={() => handleDelete(item.id)} color="red" />
+              <TouchableOpacity className="bg-yellow-500 p-2 rounded" onPress={() => handleEdit(item)}>
+                <Text className="text-white text-center font-bold">Editar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="bg-red-500 p-2 rounded" onPress={() => handleDelete(item.id)}>
+                <Text className="text-white text-center font-bold">Excluir</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
       />
+
+      <Modal
+        visible={isEditing}
+        transparent={false} // Muda para false para cobrir toda a tela
+        animationType="slide"
+      >
+        <View className="flex-1 justify-center items-center bg-gray-800">
+          <View className="bg-white p-5 rounded w-11/12">
+            <Text className="text-2xl mb-4">Editar Solicitação</Text>
+
+            <Text>Descrição do Problema:</Text>
+            <TextInput
+              className="border p-2 mb-4"
+              value={selectedRequest?.problemDescription}
+              onChangeText={(text) => handleChangeText('problemDescription', text)}
+            />
+
+            <Text>Prioridade:</Text>
+            <TextInput
+              className="border p-2 mb-4"
+              value={selectedRequest?.priority}
+              onChangeText={(text) => handleChangeText('priority', text)}
+            />
+
+            <Text>Responsável:</Text>
+            <TextInput
+              className="border p-2 mb-4"
+              value={selectedRequest?.responsible}
+              onChangeText={(text) => handleChangeText('responsible', text)}
+            />
+
+            <TouchableOpacity className="bg-blue-500 p-3 rounded mb-2" onPress={handleSaveEdit}>
+              <Text className="text-white text-center font-bold">Salvar Alterações</Text>
+            </TouchableOpacity>
+            <TouchableOpacity className="bg-red-500 p-3 rounded" onPress={() => setIsEditing(false)}>
+              <Text className="text-white text-center font-bold">Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
