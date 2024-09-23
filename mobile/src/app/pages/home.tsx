@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TextInput, Button, Image } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
 
 export function HomeScreen({ navigation }: { navigation: any }) {
   const [name, setName] = useState("");
@@ -41,12 +41,13 @@ export function HomeScreen({ navigation }: { navigation: any }) {
         />
       </View>
 
-      {/* Botão de Submissão */}
-      <Button
-        title="Submit"
+      {/* Botão de Submissão com TouchableOpacity */}
+      <TouchableOpacity
         onPress={() => navigation.navigate("Details", { name, email })}
-        color="#4F46E5" // Cor personalizada para o botão
-      />
+        className="bg-indigo-600 py-4 px-8 rounded-lg"
+      >
+        <Text className="text-white text-lg font-semibold">Submit</Text>
+      </TouchableOpacity>
     </View>
   );
 }
